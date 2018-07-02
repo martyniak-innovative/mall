@@ -1,4 +1,3 @@
-import { AngularFirestoreCollection } from 'angularfire2/firestore';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 
@@ -12,7 +11,7 @@ export class Elevation {
   done: Observable<boolean> = this._done.asObservable();
 
   constructor(private elevator, private collection: string) {
-    this.mapAndUpdate(this.query());
+    this.update(this.query());
   }
 
   private cursor() {
@@ -39,12 +38,12 @@ export class Elevation {
     });
   }
 
-  private mapAndUpdate(col: AngularFirestoreCollection<any>) {
+  private update(col) {
     if (this._done.value || this._loading.value) { return; }
 
     this._loading.next(true);
 
-    return col.snapshotChanges().pipe(take(1))
+    return col.pipe(take(1))
       .subscribe(values => {
         this._items.next(values);
         this._loading.next(false);

@@ -1,5 +1,5 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, scan } from 'rxjs/operators';
 
 export class Elevation {
   private _loading = new BehaviorSubject(false);
@@ -7,11 +7,19 @@ export class Elevation {
   private _items = new BehaviorSubject([]);
 
   loading: Observable<boolean> = this._loading.asObservable();
-  items: Observable<any[]> = this._items.asObservable();
+  items: Observable<any[]>;
   done: Observable<boolean> = this._done.asObservable();
 
   constructor(private elevator, private collection: string) {
-    this.update(this.query());
+    this.items = this._items.asObservable().pipe(
+      scan((items, newItems) => [...items, ...newItems]),
+    );
+
+    this.update();
+  }
+
+  more() {
+    this.update(true);
   }
 
   private cursor() {
@@ -28,7 +36,7 @@ export class Elevation {
 
   private query(next?) {
     return this.elevator.mall.collection(this.collection, ref => {
-      let query = ref.orderBy('timestamp');
+      let query = ref;
 
       if (next) {
         query = query.startAfter(this.cursor());
@@ -38,8 +46,9 @@ export class Elevation {
     });
   }
 
-  private update(col) {
+  private update(next?) {
     if (this._done.value || this._loading.value) { return; }
+    const col = this.query(next);
 
     this._loading.next(true);
 
@@ -47,7 +56,10 @@ export class Elevation {
       .subscribe(values => {
         this._items.next(values);
         this._loading.next(false);
-        // this.scan(values);
+
+        if (!values.length) {
+          this._done.next(true);
+        }
       });
   }
 

@@ -1,5 +1,5 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import { take, scan } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 
 export class Elevation {
   private _loading = new BehaviorSubject(false);
@@ -7,14 +7,10 @@ export class Elevation {
   private _items = new BehaviorSubject([]);
 
   loading: Observable<boolean> = this._loading.asObservable();
-  items: Observable<any[]>;
   done: Observable<boolean> = this._done.asObservable();
+  items: BehaviorSubject<any> = new BehaviorSubject([]);
 
   constructor(private elevator, private collection: string) {
-    this.items = this._items.asObservable().pipe(
-      scan((items, newItems) => [...items, ...newItems]),
-    );
-
     this.update();
   }
 
@@ -46,20 +42,25 @@ export class Elevation {
     });
   }
 
+  private scan(values) {
+    this._items.next(values);
+    this.items.next([...this.items.value, ...values]);
+  }
+
   private update(next?) {
     if (this._done.value || this._loading.value) { return; }
-    const col = this.query(next);
-
     this._loading.next(true);
+    const col = this.query(next);
 
     return col.pipe(take(1))
       .subscribe(values => {
-        this._items.next(values);
-        this._loading.next(false);
-
-        if (!values.length) {
+        if (values.length) {
+          this.scan(values);
+        } else {
           this._done.next(true);
         }
+
+        this._loading.next(false);
       });
   }
 

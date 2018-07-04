@@ -1,17 +1,29 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, switchMap } from 'rxjs/operators';
+
+export interface ElevationQueryParams {
+  collection: string;
+  limit?: number;
+}
 
 export class Elevation {
   private _loading = new BehaviorSubject(false);
-  private _done = new BehaviorSubject(false);
   private _items = new BehaviorSubject([]);
+  private _done = new BehaviorSubject(false);
 
   loading: Observable<boolean> = this._loading.asObservable();
-  done: Observable<boolean> = this._done.asObservable();
   items: BehaviorSubject<any> = new BehaviorSubject([]);
+  done: Observable<boolean> = this._done.asObservable();
 
-  constructor(private elevator, private collection: string) {
+  queryParams: BehaviorSubject<ElevationQueryParams> = new BehaviorSubject(null);
+
+  constructor(private elevator, params: ElevationQueryParams) {
+    this.reevaluate(params);
     this.update();
+  }
+
+  reevaluate(params) {
+    this.queryParams.next(params);
   }
 
   more() {
@@ -31,15 +43,17 @@ export class Elevation {
   // TODO query
 
   private query(next?) {
-    return this.elevator.mall.collection(this.collection, ref => {
-      let query = ref;
+    return this.queryParams.pipe(switchMap(({ collection }) => {
+      return this.elevator.mall.collection(collection, ref => {
+        let query = ref;
 
-      if (next) {
-        query = query.startAfter(this.cursor());
-      }
+        if (next) {
+          query = query.startAfter(this.cursor());
+        }
 
-      return query.limit(5);
-    });
+        return query.limit(5);
+      }).pipe(take(1));
+    }));
   }
 
   private scan(values) {
@@ -52,16 +66,15 @@ export class Elevation {
     this._loading.next(true);
     const col = this.query(next);
 
-    return col.pipe(take(1))
-      .subscribe(values => {
-        if (values.length) {
-          this.scan(values);
-        } else {
-          this._done.next(true);
-        }
+    return col.subscribe((values: any) => {
+      if (values.length) {
+        this.scan(values);
+      } else {
+        this._done.next(true);
+      }
 
-        this._loading.next(false);
-      });
+      this._loading.next(false);
+    });
   }
 
 }

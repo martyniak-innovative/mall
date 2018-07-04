@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Elevation } from './elevation';
+import { Elevation, ElevationQueryParams } from './elevation';
 import { Mall } from './mall.service';
 
 @Injectable({
@@ -10,8 +10,8 @@ export class Elevator {
   constructor(private mall: Mall) {}
   elevations: Elevation[] = [];
 
-  summon(collection): Elevation {
-    const elevation = new Elevation(this, collection);
+  summon(params: ElevationQueryParams): Elevation {
+    const elevation = new Elevation(this, params);
     this.elevations.push(elevation);
     return elevation;
   }

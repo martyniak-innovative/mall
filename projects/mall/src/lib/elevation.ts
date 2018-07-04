@@ -2,7 +2,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { take, switchMap } from 'rxjs/operators';
 
 export interface ElevationQueryParams {
-  collection: string;
+  where?: { [propName: string]: string };
+  collection?: string;
   limit?: number;
 }
 
@@ -40,10 +41,8 @@ export class Elevation {
     return null;
   }
 
-  // TODO query
-
   private query(next?) {
-    return this.queryParams.pipe(switchMap(({ collection }) => {
+    return this.queryParams.pipe(switchMap(({ collection, limit, where }) => {
       return this.elevator.mall.collection(collection, ref => {
         let query = ref;
 
@@ -51,7 +50,13 @@ export class Elevation {
           query = query.startAfter(this.cursor());
         }
 
-        return query.limit(5);
+        if (where) {
+          Object.keys(where).forEach(key => {
+            query = query.where(key, '==', where[key]);
+          });
+        }
+
+        return query.limit(limit || 5);
       }).pipe(take(1));
     }));
   }

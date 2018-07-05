@@ -1,15 +1,15 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { ElevatorService } from './elevator.service';
+import { Elevator } from './elevator.service';
 
 describe('ElevatorService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ElevatorService]
+      providers: [Elevator]
     });
   });
 
-  it('should be created', inject([ElevatorService], (service: ElevatorService) => {
+  it('should be created', inject([Elevator], (service: Elevator) => {
     expect(service).toBeTruthy();
   }));
 });

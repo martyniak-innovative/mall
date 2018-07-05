@@ -16,7 +16,7 @@ export class Elevation {
   items: BehaviorSubject<any> = new BehaviorSubject([]);
   done: Observable<boolean> = this._done.asObservable();
 
-  queryParams: BehaviorSubject<ElevationQueryParams> = new BehaviorSubject(null);
+  queryParams: BehaviorSubject<ElevationQueryParams> = new BehaviorSubject({ limit: 5 });
 
   constructor(private elevator, params: ElevationQueryParams) {
     this.reevaluate(params);
@@ -24,7 +24,10 @@ export class Elevation {
   }
 
   reevaluate(params) {
-    this.queryParams.next(params);
+    this._done.next(false);
+    this._items.next([]);
+    this.items.next([]);
+    this.queryParams.next(Object.assign(this.queryParams.value || {}, params));
   }
 
   more() {
@@ -46,17 +49,19 @@ export class Elevation {
       return this.elevator.mall.collection(collection, ref => {
         let query = ref;
 
-        if (next) {
+        if (next && this.cursor()) {
           query = query.startAfter(this.cursor());
         }
 
         if (where) {
           Object.keys(where).forEach(key => {
-            query = query.where(key, '==', where[key]);
+            if (where[key]) {
+              query = query.where(key, '==', where[key]);
+            }
           });
         }
 
-        return query.limit(limit || 5);
+        return query.limit(limit);
       }).pipe(take(1));
     }));
   }
@@ -71,8 +76,11 @@ export class Elevation {
     this._loading.next(true);
     const col = this.query(next);
 
-    return col.subscribe((values: any) => {
+    col.subscribe((values: any) => {
       if (values.length) {
+        if (values.length < this.queryParams.value.limit) {
+          this._done.next(true);
+        }
         this.scan(values);
       } else {
         this._done.next(true);

@@ -16,7 +16,7 @@ export class Elevation {
   items: BehaviorSubject<any> = new BehaviorSubject([]);
   done: Observable<boolean> = this._done.asObservable();
 
-  queryParams: BehaviorSubject<ElevationQueryParams> = new BehaviorSubject({ limit: 5 });
+  queryParams: BehaviorSubject<ElevationQueryParams> = new BehaviorSubject({ });
 
   constructor(private elevator, params: ElevationQueryParams) {
     this.reevaluate(params);
@@ -61,7 +61,11 @@ export class Elevation {
           });
         }
 
-        return query.limit(limit);
+        if (limit) {
+          query = query.limit(limit);
+        }
+
+        return query;
       }).pipe(take(1));
     }));
   }

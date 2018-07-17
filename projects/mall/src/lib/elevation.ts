@@ -30,8 +30,8 @@ export class Elevation {
     this.queryParams.next(Object.assign(this.queryParams.value || {}, params));
   }
 
-  more() {
-    this.update(true);
+  more(amount?) {
+    this.update(true, amount);
   }
 
   private cursor() {
@@ -44,7 +44,7 @@ export class Elevation {
     return null;
   }
 
-  private query(next?) {
+  private query(next?, amount = 0) {
     return this.queryParams.pipe(switchMap(({ collection, limit, where }) => {
       return this.elevator.mall.collection(collection, ref => {
         let query = ref;
@@ -62,7 +62,8 @@ export class Elevation {
         }
 
         if (limit) {
-          query = query.limit(limit);
+          // TODO some math to always reach right limit
+          query = query.limit(limit * (1 + amount));
         }
 
         return query;
@@ -75,10 +76,10 @@ export class Elevation {
     this.items.next([...this.items.value, ...values]);
   }
 
-  private update(next?) {
+  private update(next?, amount?) {
     if (this._done.value || this._loading.value) { return; }
     this._loading.next(true);
-    const col = this.query(next);
+    const col = this.query(next, amount);
 
     col.subscribe((values: any) => {
       if (values.length) {

@@ -1,6 +1,17 @@
 {
   "name": "@inovative/mall",
-  "version": "0.2.1",
+  "version": "0.2.2",
+  "description": "angular firestore helper with pagination support",
+  "keywords": [
+    "firestore",
+    "pagination",
+    "helper",
+    "angular"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/martyniak-innovative/mall"
+  },
   "peerDependencies": {
     "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
     "@angular/core": "^6.0.0-rc.0 || ^6.0.0",

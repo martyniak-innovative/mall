@@ -44,7 +44,7 @@ export class Elevation {
     return null;
   }
 
-  private query(next?, amount = 0) {
+  private query(next?, _limit?) {
     return this.queryParams.pipe(switchMap(({ collection, limit, where }) => {
       return this.elevator.mall.collection(collection, ref => {
         let query = ref;
@@ -63,7 +63,7 @@ export class Elevation {
 
         if (limit) {
           // TODO some math to always reach right limit
-          query = query.limit(limit * (1 + amount));
+          query = query.limit(_limit || limit);
         }
 
         return query;
@@ -79,11 +79,17 @@ export class Elevation {
   private update(next?, amount?) {
     if (this._done.value || this._loading.value) { return; }
     this._loading.next(true);
-    const col = this.query(next, amount);
+    let limit = this.queryParams.value.limit;
+
+    if (amount) {
+      limit = Math.floor(limit * (1 + amount));
+    }
+
+    const col = this.query(next, limit);
 
     col.subscribe((values: any) => {
       if (values.length) {
-        if (values.length < this.queryParams.value.limit) {
+        if (values.length < limit) {
           this._done.next(true);
         }
         this.scan(values);

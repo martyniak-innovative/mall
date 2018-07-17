@@ -25,7 +25,7 @@ export class Elevator {
     const _params = { ...params };
 
     if (amount && _params.limit) {
-      _params.limit = _params.limit / amount;
+      _params.limit = Math.floor(_params.limit / amount);
     }
 
     return _params;

@@ -11,12 +11,24 @@ export class Elevator {
   constructor(private mall: Mall) {}
 
   summonMany(collection: string, params: ElevationQueryParams[] = [{}]): Elevations {
-    const elevations = params.map(_params => this.elevation(collection, _params));
+    const elevations = params.map(_params =>
+      this.summon(collection, this.unifyParams(_params, params.length)));
+
     return new Elevations(this, elevations);
   }
 
   summon(collection: string, params?: ElevationQueryParams): Elevation {
     return this.elevation(collection, params);
+  }
+
+  unifyParams(params: ElevationQueryParams, amount: number): ElevationQueryParams {
+    const _params = { ...params };
+
+    if (amount && _params.limit) {
+      _params.limit = _params.limit / amount;
+    }
+
+    return _params;
   }
 
   private elevation(collection: string, params: ElevationQueryParams): Elevation {

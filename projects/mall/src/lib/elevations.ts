@@ -46,7 +46,7 @@ export class Elevations {
     const elevations = [];
 
     params.forEach((_params, i) => {
-      elevations[i] = this.elevator.summon('opus', _params);
+      elevations[i] = this.elevator.summon('opus', this.elevator.unifyParams(_params, params.length));
     });
 
     this._elevations.next(elevations);

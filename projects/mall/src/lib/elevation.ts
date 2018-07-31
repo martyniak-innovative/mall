@@ -4,6 +4,7 @@ import { take, switchMap } from 'rxjs/operators';
 export interface ElevationQueryParams {
   where?: { [propName: string]: string };
   collection?: string;
+  reverse?: boolean;
   orderBy?: string;
   limit?: number;
 }
@@ -46,12 +47,12 @@ export class Elevation {
   }
 
   private query(next?, _limit?) {
-    return this.queryParams.pipe(switchMap(({ collection, limit, where, orderBy }) => {
+    return this.queryParams.pipe(switchMap(({ collection, reverse, limit, where, orderBy }) => {
       return this.elevator.mall.collection(collection, ref => {
         let query = ref;
 
         if (orderBy) {
-          query = query.orderBy(orderBy);
+          query = query.orderBy(orderBy, reverse ? 'desc' : 'asc');
         }
 
         if (next && this.cursor()) {

@@ -1,6 +1,6 @@
 # 🏬 Mall 
 
-angular firestore helper with pagination support
+angular firestore helper with pagination support and simpler query where syntax
 
 ```ts
   import { Component, OnInit } from '@angular/core';

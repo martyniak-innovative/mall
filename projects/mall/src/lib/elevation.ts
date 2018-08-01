@@ -1,5 +1,6 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { take, switchMap } from 'rxjs/operators';
+import { mallQuery } from './query';
 
 export interface ElevationQueryParams {
   where?: { [propName: string]: string };
@@ -49,27 +50,11 @@ export class Elevation {
   private query(next?, _limit?) {
     return this.queryParams.pipe(switchMap(({ collection, reverse, limit, where, orderBy }) => {
       return this.elevator.mall.collection(collection, ref => {
-        let query = ref;
-
-        if (orderBy) {
-          query = query.orderBy(orderBy, reverse ? 'desc' : 'asc');
-        }
+        // TODO LIMIT - some math to always reach right limit
+        let query = mallQuery({ reverse, where, orderBy, limit: _limit || limit }, ref);
 
         if (next && this.cursor()) {
           query = query.startAfter(this.cursor());
-        }
-
-        if (where) {
-          Object.keys(where).forEach(key => {
-            if (where[key]) {
-              query = query.where(key, '==', where[key]);
-            }
-          });
-        }
-
-        if (limit) {
-          // TODO some math to always reach right limit
-          query = query.limit(_limit || limit);
         }
 
         return query;

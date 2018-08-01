@@ -9,17 +9,9 @@ import { map } from 'rxjs/operators';
 export class Mall {
   constructor(private db: AngularFirestore) { }
 
-  collection(collection, queryFn?, inject?): Observable<any> {
-    return this.db.collection(collection, ref => this.query(ref, queryFn))
+  collection(collection, query?, inject?): Observable<any> {
+    return this.db.collection(collection, ref => this.query(ref, query))
       .snapshotChanges().pipe(this.extract(inject));
-  }
-
-  by(collection, property, value, inject?): Observable<any> {
-    return this.collection(collection, q => q.where(property, '==', value), inject);
-  }
-
-  add(collection, data): Promise<any> {
-    return this.db.collection(collection).add(data);
   }
 
   document(document, inject?): Observable<any> {
@@ -27,6 +19,10 @@ export class Mall {
       .pipe(
         map(item => this.extractOne(item.payload, inject),
     ));
+  }
+
+  add(collection, data): Promise<any> {
+    return this.db.collection(collection).add(data);
   }
 
   private query(ref, fn) {

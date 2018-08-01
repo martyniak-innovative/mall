@@ -1,6 +1,6 @@
 import { ElevationQueryParams } from './elevation';
 
-export function mallQuery({ orderBy, where, reverse, limit }: ElevationQueryParams, ref) {
+export function mallQuery(ref, { orderBy, where, reverse, limit }: ElevationQueryParams = { }) {
   let query = ref;
 
   if (orderBy) {

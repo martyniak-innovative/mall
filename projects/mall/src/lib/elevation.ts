@@ -51,7 +51,7 @@ export class Elevation {
     return this.queryParams.pipe(switchMap(({ collection, reverse, limit, where, orderBy }) => {
       return this.elevator.mall.collection(collection, ref => {
         // TODO LIMIT - some math to always reach right limit
-        let query = mallQuery({ reverse, where, orderBy, limit: _limit || limit }, ref);
+        let query = mallQuery(ref, { reverse, where, orderBy, limit: _limit || limit });
 
         if (next && this.cursor()) {
           query = query.startAfter(this.cursor());

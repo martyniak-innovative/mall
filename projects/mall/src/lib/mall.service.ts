@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
+
 import { AngularFirestore } from 'angularfire2/firestore';
-import { Observable } from 'rxjs';
+
 import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+
 import { mallQuery } from './query';
 
 @Injectable({
@@ -28,7 +31,7 @@ export class Mall {
     if (typeof query === 'function') {
       return query(ref);
     } else {
-      return mallQuery(query, ref);
+      return mallQuery(ref, query);
     }
   }
 

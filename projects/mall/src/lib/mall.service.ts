@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { mallQuery } from './query';
 
 @Injectable({
   providedIn: 'root'
@@ -16,17 +17,19 @@ export class Mall {
 
   document(document, inject?): Observable<any> {
     return this.db.doc(document).snapshotChanges()
-      .pipe(
-        map(item => this.extractOne(item.payload, inject),
-    ));
+      .pipe(map(item => this.extractOne(item.payload, inject)));
   }
 
   add(collection, data): Promise<any> {
     return this.db.collection(collection).add(data);
   }
 
-  private query(ref, fn) {
-    return fn ? fn(ref) : ref;
+  private query(ref, query) {
+    if (typeof query === 'function') {
+      return query(ref);
+    } else {
+      return mallQuery(query, ref);
+    }
   }
 
   private extract(inject?) {

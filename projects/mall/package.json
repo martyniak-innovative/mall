@@ -1,10 +1,11 @@
 {
   "name": "@inovative/mall",
-  "version": "0.3.1",
-  "description": "angular firestore helper with pagination support and simpler query where syntax",
+  "version": "1.0.0-beta.0",
+  "description": "helper for angular firestore (on top angularfire2) with pagination and simpler query syntax",
   "keywords": [
     "firestore",
     "pagination",
+    "query",
     "helper",
     "angular"
   ],
